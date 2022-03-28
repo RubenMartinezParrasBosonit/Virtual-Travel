@@ -2,6 +2,6 @@ Ejecutamos el docker compose de esta carpeta
 
 docker-compose up -d
 
-Creamos el topic
+Creamos el topic en el CLI de kafka
 
 kafka-topics --create --bootstrap-server localhost:29092 --replication-factor 1 --partitions 1 --topic actualiza
