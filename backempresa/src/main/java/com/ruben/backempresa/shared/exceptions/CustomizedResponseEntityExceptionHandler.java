@@ -24,4 +24,10 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity<CustomError>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(BusWithoutEspaceException.class)
+    public final ResponseEntity<CustomError> handleBusWithoutEspaceExceptionException(BusWithoutEspaceException ex, WebRequest request) {
+        CustomError exceptionResponse = new CustomError(new Date(), HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), "INFO");
+        return new ResponseEntity<CustomError>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

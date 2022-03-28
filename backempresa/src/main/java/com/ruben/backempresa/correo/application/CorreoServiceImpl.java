@@ -12,7 +12,6 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CorreoServiceImpl implements CorreoService{
@@ -23,19 +22,17 @@ public class CorreoServiceImpl implements CorreoService{
     @Override
     public void sendMail(CorreoInputDto correoInputDto){
         //Comprobar que el correo está en la base de datos, en caso afirmativo, enviar
-        enviarEmail(correoInputDto);
+        reenviarEmail(correoInputDto);
     }
 
     @Override
     public void saveMail(CorreoInputDto correoInputDto){
         Correo correo = new Correo(null, correoInputDto.getCiudadDestino(), correoInputDto.getEmail(), correoInputDto.getFechaReserva(), correoInputDto.getHoraReserva());
+        enviarEmail(correoInputDto);
         correoRepository.save(correo);
     }
 
-    private void enviarEmail(CorreoInputDto correoInputDto){
-        final String fromEmail = "virtual.travel.exercise@gmail.com"; //requires valid gmail id
-        final String password = "bosonit1"; // correct password for gmail id
-
+    private void reenviarEmail(CorreoInputDto correoInputDto){
         //Buscamos el correo en la BD para reenviar
         List<Correo> correos = correoRepository.findByEmail(correoInputDto.getEmail());
 
@@ -52,6 +49,45 @@ public class CorreoServiceImpl implements CorreoService{
 
         final String toEmail = result.getEmail(); // can be any email id
 
+        Session session = configurarSesion();
+
+        Date date = result.getFechaReserva();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+
+        EmailUtil.sendEmail(session, toEmail,"Recordatorio viaje Virtual-Travel"
+                , "Tiene un viaje hacia: " + result.getCiudadDestino() + "\n" +
+                        "El " + day + "/" + month + "/" + year +  " a las " + result.getHoraReserva() + "\n" +
+                        "Muchas gracias!");
+    }
+
+    private void enviarEmail(CorreoInputDto correoInputDto){
+        final String toEmail = correoInputDto.getEmail(); // can be any email id
+
+        Session session = configurarSesion();
+
+        Date date = correoInputDto.getFechaReserva();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+
+        EmailUtil.sendEmail(session, toEmail,"Recordatorio viaje Virtual-Travel"
+                , "Tiene un viaje hacia: " + correoInputDto.getCiudadDestino() + "\n" +
+                        "El " + day + "/" + month + "/" + year +  " a las " + correoInputDto.getHoraReserva() + "\n" +
+                        "Muchas gracias!");
+    }
+
+    private Session configurarSesion(){
+        final String fromEmail = "virtual.travel.exercise@gmail.com"; //requires valid gmail id
+        final String password = "bosonit1"; // correct password for gmail id
+
         System.out.println("TLSEmail Start");
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
@@ -66,20 +102,7 @@ public class CorreoServiceImpl implements CorreoService{
                 return new PasswordAuthentication(fromEmail, password);
             }
         };
-        Session session = Session.getInstance(props, auth);
-
-        Date date = result.getFechaReserva();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int year = calendar.get(Calendar.YEAR);
-
-        EmailUtil.sendEmail(session, toEmail,"Recordatorio viaje Virtual-Travel"
-                , "Tiene un viaje hacia: " + result.getCiudadDestino() + "\n" +
-                        "El " + day + "/" + month + "/" + year +  " a las " + result.getHoraReserva() + "\n" +
-                        "Muchas gracias!");
+        return Session.getInstance(props, auth);
     }
 
 }
