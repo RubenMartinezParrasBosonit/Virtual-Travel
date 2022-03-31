@@ -25,15 +25,16 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Slf4j
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    //Manager de autentificación, nos ayudará a realizar el proceso
     @Autowired
     private AuthenticationManager authenticationManager;
 
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager){
         this.authenticationManager = authenticationManager;
     }
+
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request
@@ -50,14 +51,19 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             , FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
         User user = (User)authentication.getPrincipal();
+
+        //used in the Signing or Verification process of a Token
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+
+        //Creamos el token
         String access_token = JWT.create().withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
-        //response.setHeader("access_token", access_token);
+
+        //Devolvemos el token
         Map<String,String> tokens = new HashMap<>();
         tokens.put("access_token", access_token);
         response.setContentType(APPLICATION_JSON_VALUE);

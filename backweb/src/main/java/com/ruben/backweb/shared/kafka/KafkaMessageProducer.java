@@ -1,13 +1,12 @@
-package com.ruben.backempresa.shared.kafka;
+package com.ruben.backweb.shared.kafka;
 
-import com.ruben.backempresa.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
-
 
 @Component
 public class KafkaMessageProducer {
@@ -16,6 +15,7 @@ public class KafkaMessageProducer {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     public void sendMessage(String topic, ReservaOutputDto reserva) {
+
 
         ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, reserva);
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {

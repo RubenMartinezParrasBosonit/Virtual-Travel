@@ -18,15 +18,21 @@ public class ReservaController {
     @Autowired
     ReservaService reservaService;
 
-    @Autowired
-    CorreoService correoService;
 
-    @PostMapping("/reserva")
+
+    @PostMapping("/reserva2")
     public ResponseEntity<ReservaOutputDto> reserva(@RequestBody ReservaOutputDto reservaOutputDto) {
         ReservaOutputDto reservaFinal = reservaService.hacerReserva(reservaOutputDto);
 
-        correoService.saveMail(new CorreoInputDto(reservaFinal.getCiudadDestino(), reservaFinal.getEmail()
-                , reservaFinal.getFechaReserva(), reservaFinal.getHoraReserva()));
+
+        return ResponseEntity.ok().body(reservaFinal);
+
+    }
+
+    @PostMapping("/reserva")
+    public ResponseEntity<ReservaOutputDto> reservaKafka(@RequestBody ReservaOutputDto reservaOutputDto) {
+        ReservaOutputDto reservaFinal = reservaService.hacerReservaKafka(reservaOutputDto);
+
         return ResponseEntity.ok().body(reservaFinal);
 
     }

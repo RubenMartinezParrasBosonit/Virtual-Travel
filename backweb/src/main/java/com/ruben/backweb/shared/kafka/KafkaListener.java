@@ -1,7 +1,7 @@
-package com.ruben.backempresa.shared.kafka;
+package com.ruben.backweb.shared.kafka;
 
-import com.ruben.backempresa.reserva.application.ReservaService;
-import com.ruben.backempresa.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
+import com.ruben.backweb.reserva.application.ReservaService;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

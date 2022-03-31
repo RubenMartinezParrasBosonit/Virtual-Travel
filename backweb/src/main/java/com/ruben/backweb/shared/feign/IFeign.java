@@ -1,4 +1,4 @@
-package com.ruben.backweb.shared;
+package com.ruben.backweb.shared.feign;
 
 import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
 import org.springframework.cloud.openfeign.FeignClient;

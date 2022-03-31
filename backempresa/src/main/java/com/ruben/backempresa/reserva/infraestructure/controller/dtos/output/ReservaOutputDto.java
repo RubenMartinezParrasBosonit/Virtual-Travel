@@ -2,6 +2,8 @@ package com.ruben.backempresa.reserva.infraestructure.controller.dtos.output;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +12,7 @@ import java.util.Date;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReservaOutputDto {
 
     @NotNull
@@ -38,4 +41,16 @@ public class ReservaOutputDto {
     @NotNull
     private Float horaReserva;
 
+    @Override
+    public String toString() {
+        return "ReservaOutputDto{" +
+                "ciudadDestino='" + ciudadDestino + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", email='" + email + '\'' +
+                ", fechaReserva=" + fechaReserva +
+                ", horaReserva=" + horaReserva +
+                '}';
+    }
 }

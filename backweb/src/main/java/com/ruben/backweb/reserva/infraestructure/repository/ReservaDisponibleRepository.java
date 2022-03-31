@@ -1,6 +1,6 @@
-package com.ruben.backempresa.reserva.infraestructure.repository;
+package com.ruben.backweb.reserva.infraestructure.repository;
 
-import com.ruben.backempresa.reserva.domain.ReservaDisponible;
+import com.ruben.backweb.reserva.domain.ReservaDisponible;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

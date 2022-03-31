@@ -32,7 +32,7 @@ public class MyUserServiceImpl implements MyUserService, UserDetailsService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-
+    //Overrrided de UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         MyUser myUser = myUserRepository.findByUsername(username);

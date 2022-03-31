@@ -27,13 +27,16 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
+
     @Override
     protected void doFilterInternal(HttpServletRequest request
             , HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        //Si necesitáramos un token para hacer login y haciendo el login es como conseguimos el token...
         if(request.getServletPath().equals("/api/login")){
             filterChain.doFilter(request, response);
         }else{
+            //Para los endpoints donde no permitimos que cualquiera acceda, buscamos en el header la variable Authorization donde pasamos nuestro token
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             System.out.println(authorizationHeader);
             if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){

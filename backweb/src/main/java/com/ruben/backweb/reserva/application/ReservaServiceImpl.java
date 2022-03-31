@@ -1,43 +1,43 @@
-package com.ruben.backempresa.reserva.application;
+package com.ruben.backweb.reserva.application;
 
-import com.ruben.backempresa.correo.application.CorreoService;
-import com.ruben.backempresa.correo.infraestructure.controller.dtos.input.CorreoInputDto;
-import com.ruben.backempresa.reserva.domain.Reserva;
-import com.ruben.backempresa.reserva.domain.ReservaDisponible;
-import com.ruben.backempresa.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
-import com.ruben.backempresa.reserva.infraestructure.repository.ReservaDisponibleRepository;
-import com.ruben.backempresa.reserva.infraestructure.repository.ReservaRepository;
-import com.ruben.backempresa.shared.exceptions.BusWithoutEspaceException;
-import com.ruben.backempresa.shared.kafka.KafkaMessageProducer;
+import com.ruben.backweb.reserva.domain.Reserva;
+import com.ruben.backweb.reserva.domain.ReservaDisponible;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.input.ReservaDisponibleInputDto;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaDisponibleOutputDto;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
+import com.ruben.backweb.reserva.infraestructure.repository.ReservaDisponibleRepository;
+import com.ruben.backweb.reserva.infraestructure.repository.ReservaRepository;
+import com.ruben.backweb.shared.exceptions.BusWithoutEspaceException;
+import com.ruben.backweb.shared.kafka.KafkaMessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class ReservaServiceImpl implements ReservaService{
 
     //Como ReservaDisponible se crea cuando llega la primera reserva para una hora/fecha/destino, se cuenta esta y empezamos desde 39 disponibles
     private static final int PLAZAS_BUS = 39;
-
     private static final String TOPIC = "actualiza";
 
-    @Autowired
-    ReservaDisponibleRepository reservaDisponibleRepository;
 
     @Autowired
     ReservaRepository reservaRepository;
 
     @Autowired
-    CorreoService correoService;
+    ReservaDisponibleRepository reservaDisponibleRepository;
 
     @Autowired
     KafkaMessageProducer kafkaMessageProducer;
 
+
     @Override
-    public ReservaOutputDto hacerReserva(ReservaOutputDto reservaOutputDto) {
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaOutputDto);
+    public void hacerReserva(ReservaOutputDto reservaOutputDto){
+        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
+                reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
 
         comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
 
@@ -46,16 +46,22 @@ public class ReservaServiceImpl implements ReservaService{
                 , reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva());
 
         reservaRepository.save(reserva);
+    }
 
-        //correoService.saveMail(new CorreoInputDto(reservaOutputDto.getCiudadDestino(), reservaOutputDto.getEmail()
-         //       , reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
-
-        return reservaOutputDto;
+    @Override
+    public ReservaDisponibleOutputDto buscarDisponibilidad(ReservaDisponibleInputDto reservaDisponibleInputDto){
+        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaDisponibleInputDto);
+        if(!reservaDisponibleOptional.isPresent()){
+            return new ReservaDisponibleOutputDto();
+        }else{
+            return new ReservaDisponibleOutputDto(reservaDisponibleOptional.get());
+        }
     }
 
     @Override
     public ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto) {
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaOutputDto);
+        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
+                reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
 
         comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
 
@@ -65,8 +71,6 @@ public class ReservaServiceImpl implements ReservaService{
 
         reservaRepository.save(reserva);
         kafkaMessageProducer.sendMessage(TOPIC,reservaOutputDto);
-        //correoService.saveMail(new CorreoInputDto(reservaOutputDto.getCiudadDestino(), reservaOutputDto.getEmail()
-        //       , reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
         return reservaOutputDto;
     }
 
@@ -75,11 +79,12 @@ public class ReservaServiceImpl implements ReservaService{
         hacerReserva(reservaOutputDto);
     }
 
-    private Optional<ReservaDisponible> busquedaReservaDisponible(ReservaOutputDto reservaOutputDto){
-        List<ReservaDisponible> listaReservasCiudad = reservaDisponibleRepository.findByCiudadDestino(reservaOutputDto.getCiudadDestino());
+
+    private Optional<ReservaDisponible> busquedaReservaDisponible(ReservaDisponibleInputDto reservaDisponibleInputDto){
+        List<ReservaDisponible> listaReservasCiudad = reservaDisponibleRepository.findByCiudadDestino(reservaDisponibleInputDto.getCiudadDestino());
         return listaReservasCiudad.stream().filter(reservaDisponible1 ->
-                        reservaDisponible1.getHoraSalida().equals(reservaOutputDto.getHoraReserva()) &&
-                                reservaDisponible1.getFechaSalida().compareTo(reservaOutputDto.getFechaReserva()) == 0)
+                        reservaDisponible1.getHoraSalida().equals(reservaDisponibleInputDto.getHoraReserva()) &&
+                                reservaDisponible1.getFechaSalida().compareTo(reservaDisponibleInputDto.getFechaSalida()) == 0)
                 .findAny();
     }
 

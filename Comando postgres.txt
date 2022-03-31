@@ -1,2 +1,1 @@
-docker run --name BackEmpresaDB -ePOSTGRES_USER=ruben -e POSTGRES_PASSWORD=ruben 
--e POSTGRES_DB=test -p5433:5432 postgres
+docker run --name BackEmpresaDB -ePOSTGRES_USER=ruben -e POSTGRES_PASSWORD=ruben -e POSTGRES_DB=test -p5433:5432 postgres

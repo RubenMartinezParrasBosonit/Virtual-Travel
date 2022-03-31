@@ -6,5 +6,7 @@ import com.ruben.backempresa.reserva.infraestructure.controller.dtos.output.Rese
 public interface ReservaService {
 
     ReservaOutputDto hacerReserva(ReservaOutputDto reservaOutputDto);
+    ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto);
+    void escucharReservaKafka(ReservaOutputDto reservaOutputDto);
 
 }

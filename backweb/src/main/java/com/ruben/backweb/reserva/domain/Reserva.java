@@ -1,19 +1,27 @@
-package com.ruben.backweb.reserva.infraestructure.controller.dtos.output;
+package com.ruben.backweb.reserva.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ReservaOutputDto {
+@AllArgsConstructor
+public class Reserva {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Integer id;
 
     @NotNull
     @NotBlank
@@ -41,16 +49,4 @@ public class ReservaOutputDto {
     @NotNull
     private Float horaReserva;
 
-    @Override
-    public String toString() {
-        return "ReservaOutputDto{" +
-                "ciudadDestino='" + ciudadDestino + '\'' +
-                ", nombre='" + nombre + '\'' +
-                ", apellido='" + apellido + '\'' +
-                ", telefono='" + telefono + '\'' +
-                ", email='" + email + '\'' +
-                ", fechaReserva=" + fechaReserva +
-                ", horaReserva=" + horaReserva +
-                '}';
-    }
 }
