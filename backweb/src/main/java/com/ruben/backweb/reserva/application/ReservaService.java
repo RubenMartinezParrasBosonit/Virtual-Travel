@@ -11,6 +11,7 @@ public interface ReservaService {
     void hacerReserva(ReservaOutputDto reservaOutputDto);
     ReservaDisponibleOutputDto buscarDisponibilidad(ReservaDisponibleInputDto reservaDisponibleInputDto);
     List<ReservaDisponibleOutputDto> buscarReservasDisponibles (String ciudadDestino, ReservaDisponibleRangoInputDto reservaDisponibleRangoInputDto);
+    List<ReservaOutputDto> buscarReservas (String ciudadDestino, ReservaDisponibleRangoInputDto reservaDisponibleRangoInputDto);
     ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto);
     public void escucharReservaKafka(ReservaOutputDto reservaOutputDto);
 

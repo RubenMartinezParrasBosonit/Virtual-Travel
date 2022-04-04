@@ -46,6 +46,12 @@ public class ReservaController {
         return ResponseEntity.ok().body(reservaService.buscarReservasDisponibles(ciudadDestino, reservaDisponibleRangoInputDto));
     }
 
+    @GetMapping("/reserva/{ciudadDestino}")
+    ResponseEntity<List<ReservaOutputDto>> getReservaRango(@PathVariable String ciudadDestino
+            , @RequestBody ReservaDisponibleRangoInputDto reservaDisponibleRangoInputDto){
+        return ResponseEntity.ok().body(reservaService.buscarReservas(ciudadDestino, reservaDisponibleRangoInputDto));
+    }
+
     @PostMapping("/login")
     String login(@RequestBody LoginForm loginForm){
         return iFeign.login(loginForm);
