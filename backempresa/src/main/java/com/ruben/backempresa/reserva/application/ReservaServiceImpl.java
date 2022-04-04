@@ -37,9 +37,9 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public ReservaOutputDto hacerReserva(ReservaOutputDto reservaOutputDto) {
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaOutputDto);
+        ReservaDisponible reservaDisponible = busquedaReservaDisponible(reservaOutputDto);
 
-        comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
+        comprobarReservaDisponible(reservaDisponible, reservaOutputDto);
 
         Reserva reserva = new Reserva(null, reservaOutputDto.getCiudadDestino(), reservaOutputDto.getNombre()
                 , reservaOutputDto.getApellido(), reservaOutputDto.getTelefono(), reservaOutputDto.getEmail()
@@ -55,9 +55,9 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto) {
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaOutputDto);
+        ReservaDisponible reservaDisponible = busquedaReservaDisponible(reservaOutputDto);
 
-        comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
+        comprobarReservaDisponible(reservaDisponible, reservaOutputDto);
 
         Reserva reserva = new Reserva(null, reservaOutputDto.getCiudadDestino(), reservaOutputDto.getNombre()
                 , reservaOutputDto.getApellido(), reservaOutputDto.getTelefono(), reservaOutputDto.getEmail()
@@ -75,17 +75,13 @@ public class ReservaServiceImpl implements ReservaService{
         hacerReserva(reservaOutputDto);
     }
 
-    private Optional<ReservaDisponible> busquedaReservaDisponible(ReservaOutputDto reservaOutputDto){
-        List<ReservaDisponible> listaReservasCiudad = reservaDisponibleRepository.findByCiudadDestino(reservaOutputDto.getCiudadDestino());
-        return listaReservasCiudad.stream().filter(reservaDisponible1 ->
-                        reservaDisponible1.getHoraSalida().equals(reservaOutputDto.getHoraReserva()) &&
-                                reservaDisponible1.getFechaSalida().compareTo(reservaOutputDto.getFechaReserva()) == 0)
-                .findAny();
+    private ReservaDisponible busquedaReservaDisponible(ReservaOutputDto reservaOutputDto){
+        return reservaDisponibleRepository.findByCiudadDestinoAndHoraSalidaAndFechaSalida(reservaOutputDto.getCiudadDestino()
+                , reservaOutputDto.getHoraReserva(), reservaOutputDto.getFechaReserva());
     }
 
-    private void comprobarReservaDisponible(Optional<ReservaDisponible> reservaDisponibleOptional, ReservaOutputDto reservaOutputDto){
-        if(reservaDisponibleOptional.isPresent()){
-            ReservaDisponible reservaDisponible = reservaDisponibleOptional.get();
+    private void comprobarReservaDisponible(ReservaDisponible reservaDisponible, ReservaOutputDto reservaOutputDto){
+        if(reservaDisponible!=null){
             if(reservaDisponible.getNumeroPlazas() == 0){
                 throw new BusWithoutEspaceException("No hay plazas libres en el bus especificado");
             }else{

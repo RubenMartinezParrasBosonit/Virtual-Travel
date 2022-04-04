@@ -2,6 +2,7 @@ package com.ruben.backempresa.correo.application;
 
 import com.ruben.backempresa.correo.domain.Correo;
 import com.ruben.backempresa.correo.infraestructure.controller.dtos.input.CorreoInputDto;
+import com.ruben.backempresa.correo.infraestructure.controller.dtos.input.CorreoRangoInputDto;
 import com.ruben.backempresa.correo.infraestructure.repository.CorreoRepository;
 import com.ruben.backempresa.correo.infraestructure.utils.EmailUtil;
 import com.ruben.backempresa.shared.exceptions.EmailNotFoundException;
@@ -30,6 +31,25 @@ public class CorreoServiceImpl implements CorreoService{
         Correo correo = new Correo(null, correoInputDto.getCiudadDestino(), correoInputDto.getEmail(), correoInputDto.getFechaReserva(), correoInputDto.getHoraReserva());
         enviarEmail(correoInputDto);
         correoRepository.save(correo);
+    }
+
+    @Override
+    public List<CorreoInputDto> getCorreos(CorreoRangoInputDto correoRangoInputDto){
+        List<Correo> correos = correoRepository.findCorreoConRangos(correoRangoInputDto.getCiudadDestino(), correoRangoInputDto.getFechaSuperior()
+                , correoRangoInputDto.getFechaInferior(), correoRangoInputDto.getHoraInferior()
+                , correoRangoInputDto.getHoraSuperior());
+
+        if(correos!=null){
+            List<CorreoInputDto> correoInputDtos = new ArrayList<>();
+            correos.stream().forEach(correo -> {
+                correoInputDtos.add(new CorreoInputDto(correo.getCiudadDestino()
+                        , correo.getEmail(), correo.getFechaReserva(), correo.getHoraReserva()));
+            });
+            return correoInputDtos;
+        }else{
+            return null;
+        }
+
     }
 
     private void reenviarEmail(CorreoInputDto correoInputDto){

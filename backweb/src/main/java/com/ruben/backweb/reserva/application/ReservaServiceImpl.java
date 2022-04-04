@@ -3,6 +3,7 @@ package com.ruben.backweb.reserva.application;
 import com.ruben.backweb.reserva.domain.Reserva;
 import com.ruben.backweb.reserva.domain.ReservaDisponible;
 import com.ruben.backweb.reserva.infraestructure.controller.dtos.input.ReservaDisponibleInputDto;
+import com.ruben.backweb.reserva.infraestructure.controller.dtos.input.ReservaDisponibleRangoInputDto;
 import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaDisponibleOutputDto;
 import com.ruben.backweb.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
 import com.ruben.backweb.reserva.infraestructure.repository.ReservaDisponibleRepository;
@@ -12,6 +13,7 @@ import com.ruben.backweb.shared.kafka.KafkaMessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +38,10 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public void hacerReserva(ReservaOutputDto reservaOutputDto){
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
+        ReservaDisponible reservaDisponible = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
                 reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
 
-        comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
+        comprobarReservaDisponible(reservaDisponible, reservaOutputDto);
 
         Reserva reserva = new Reserva(null, reservaOutputDto.getCiudadDestino(), reservaOutputDto.getNombre()
                 , reservaOutputDto.getApellido(), reservaOutputDto.getTelefono(), reservaOutputDto.getEmail()
@@ -50,20 +52,20 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public ReservaDisponibleOutputDto buscarDisponibilidad(ReservaDisponibleInputDto reservaDisponibleInputDto){
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(reservaDisponibleInputDto);
-        if(!reservaDisponibleOptional.isPresent()){
+        ReservaDisponible reservaDisponible = busquedaReservaDisponible(reservaDisponibleInputDto);
+        if(reservaDisponible==null){
             return new ReservaDisponibleOutputDto();
         }else{
-            return new ReservaDisponibleOutputDto(reservaDisponibleOptional.get());
+            return new ReservaDisponibleOutputDto(reservaDisponible);
         }
     }
 
     @Override
     public ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto) {
-        Optional<ReservaDisponible> reservaDisponibleOptional = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
+        ReservaDisponible reservaDisponible = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
                 reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
 
-        comprobarReservaDisponible(reservaDisponibleOptional, reservaOutputDto);
+        comprobarReservaDisponible(reservaDisponible, reservaOutputDto);
 
         Reserva reserva = new Reserva(null, reservaOutputDto.getCiudadDestino(), reservaOutputDto.getNombre()
                 , reservaOutputDto.getApellido(), reservaOutputDto.getTelefono(), reservaOutputDto.getEmail()
@@ -79,18 +81,33 @@ public class ReservaServiceImpl implements ReservaService{
         hacerReserva(reservaOutputDto);
     }
 
+    @Override
+    public List<ReservaDisponibleOutputDto> buscarReservasDisponibles (String ciudadDestino, ReservaDisponibleRangoInputDto reservaDisponibleRangoInputDto){
+        List<ReservaDisponible> reservaDisponibles = reservaDisponibleRepository.findReservaConRangos(ciudadDestino, reservaDisponibleRangoInputDto.getFechaSuperior()
+                , reservaDisponibleRangoInputDto.getFechaInferior(), reservaDisponibleRangoInputDto.getHoraInferior()
+                , reservaDisponibleRangoInputDto.getHoraSuperior());
+        if(reservaDisponibles!=null){
+            List<ReservaDisponibleOutputDto> reservaDisponibleOutputDtos = new ArrayList<>();
+            reservaDisponibles.stream().forEach(reservaDisponible -> {
+                reservaDisponibleOutputDtos.add(new ReservaDisponibleOutputDto(reservaDisponible));
+            });
 
-    private Optional<ReservaDisponible> busquedaReservaDisponible(ReservaDisponibleInputDto reservaDisponibleInputDto){
-        List<ReservaDisponible> listaReservasCiudad = reservaDisponibleRepository.findByCiudadDestino(reservaDisponibleInputDto.getCiudadDestino());
-        return listaReservasCiudad.stream().filter(reservaDisponible1 ->
-                        reservaDisponible1.getHoraSalida().equals(reservaDisponibleInputDto.getHoraReserva()) &&
-                                reservaDisponible1.getFechaSalida().compareTo(reservaDisponibleInputDto.getFechaSalida()) == 0)
-                .findAny();
+            return reservaDisponibleOutputDtos;
+
+        }else{
+            return null;
+        }
+
     }
 
-    private void comprobarReservaDisponible(Optional<ReservaDisponible> reservaDisponibleOptional, ReservaOutputDto reservaOutputDto){
-        if(reservaDisponibleOptional.isPresent()){
-            ReservaDisponible reservaDisponible = reservaDisponibleOptional.get();
+
+    private ReservaDisponible busquedaReservaDisponible(ReservaDisponibleInputDto reservaDisponibleInputDto){
+        return reservaDisponibleRepository.findByCiudadDestinoAndHoraSalidaAndFechaSalida(reservaDisponibleInputDto.getCiudadDestino()
+                , reservaDisponibleInputDto.getHoraReserva(), reservaDisponibleInputDto.getFechaSalida());
+    }
+
+    private void comprobarReservaDisponible(ReservaDisponible reservaDisponible, ReservaOutputDto reservaOutputDto){
+        if(reservaDisponible!=null){
             if(reservaDisponible.getNumeroPlazas() == 0){
                 throw new BusWithoutEspaceException("No hay plazas libres en el bus especificado");
             }else{

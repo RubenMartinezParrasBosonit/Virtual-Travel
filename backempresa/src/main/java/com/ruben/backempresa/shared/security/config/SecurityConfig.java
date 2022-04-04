@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          * Empezamos a configurar a que endpoints puede acceder cada persona dependiendo del rol.
          */
         http.authorizeRequests().antMatchers("/api/login/**","/api/test/**", "/api/mail/send/**"
-                , "/api/mail/save/**", "/api/reserva/**").permitAll();
+                , "/api/mail/save/**", "/api/reserva/**", "/api/correos/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/api/user/**")
                 .hasAnyAuthority("USER", "ADMIN");
         http.authorizeRequests().antMatchers(POST, "/api/user/**")
