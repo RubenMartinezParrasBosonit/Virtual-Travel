@@ -1,15 +1,10 @@
 package com.ruben.backempresa.reserva.infraestructure.controller;
 
-import com.ruben.backempresa.correo.application.CorreoService;
-import com.ruben.backempresa.correo.infraestructure.controller.dtos.input.CorreoInputDto;
 import com.ruben.backempresa.reserva.application.ReservaService;
 import com.ruben.backempresa.reserva.infraestructure.controller.dtos.output.ReservaOutputDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -36,4 +31,7 @@ public class ReservaController {
         return ResponseEntity.ok().body(reservaFinal);
 
     }
+
+    //@GetMapping("/correos")
+    //public ResponseEntity<>
 }

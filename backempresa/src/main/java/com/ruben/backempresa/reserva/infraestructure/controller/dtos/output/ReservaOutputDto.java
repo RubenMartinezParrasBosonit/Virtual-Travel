@@ -8,12 +8,13 @@ import lombok.ToString;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservaOutputDto {
+public class ReservaOutputDto implements Serializable {
 
     @NotNull
     @NotBlank
