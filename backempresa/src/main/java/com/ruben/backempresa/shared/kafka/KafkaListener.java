@@ -11,8 +11,7 @@ public class KafkaListener {
     @Autowired
     ReservaService reservaService;
 
-    @org.springframework.kafka.annotation.KafkaListener(topics = "${message.topic.name:actualiza}"
-            , groupId = "${message.group.name:virtualtravel}")
+    @org.springframework.kafka.annotation.KafkaListener(topics = "${message.topic.name:actualiza}")
     public void listenTopicActualiza(ReservaOutputDto reservaOutputDto) {
         reservaService.escucharReservaKafka(reservaOutputDto);
     }

@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
+    List<Reserva> findByEmailAndCiudadDestinoAndFechaReservaAndHoraReserva(String email, String ciudadDestino, Date fechaReserva, Float horaReserva);
+
 
     @Query(value = "SELECT * FROM reserva r WHERE r.fecha_reserva<=:fechaSuperior AND r.fecha_reserva>=:fechaInferior" +
             " AND r.hora_reserva<=:horaSuperior AND r.hora_reserva>=:horaInferior AND r.ciudad_destino = :ciudadDestino"

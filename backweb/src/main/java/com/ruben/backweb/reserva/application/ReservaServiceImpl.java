@@ -62,6 +62,13 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public ReservaOutputDto hacerReservaKafka(ReservaOutputDto reservaOutputDto) {
+
+        if(!reservaRepository.findByEmailAndCiudadDestinoAndFechaReservaAndHoraReserva(reservaOutputDto.getEmail()
+                , reservaOutputDto.getCiudadDestino(), reservaOutputDto.getFechaReserva()
+                , reservaOutputDto.getHoraReserva()).isEmpty()){
+            return null;
+        }
+
         ReservaDisponible reservaDisponible = busquedaReservaDisponible(new ReservaDisponibleInputDto(reservaOutputDto.getCiudadDestino(),
                 reservaOutputDto.getFechaReserva(), reservaOutputDto.getHoraReserva()));
 
@@ -78,7 +85,9 @@ public class ReservaServiceImpl implements ReservaService{
 
     @Override
     public void escucharReservaKafka(ReservaOutputDto reservaOutputDto){
-        hacerReserva(reservaOutputDto);
+        if(reservaRepository.findByEmailAndCiudadDestinoAndFechaReservaAndHoraReserva(reservaOutputDto.getEmail()
+                , reservaOutputDto.getCiudadDestino(), reservaOutputDto.getFechaReserva()
+                , reservaOutputDto.getHoraReserva()).isEmpty()) hacerReserva(reservaOutputDto);
     }
 
     @Override
